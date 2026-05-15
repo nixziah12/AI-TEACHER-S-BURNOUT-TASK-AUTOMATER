@@ -1,0 +1,56 @@
+﻿{% extends 'base.html' %}
+{% block page_title %}Report Generation{% endblock %}
+{% block content %}
+<section class="panel-grid two-col">
+    <article class="panel">
+        <div class="panel-head">
+            <h3>Report Summary</h3>
+            <div class="button-row">
+                <button class="primary-btn slim" onclick="window.print()">Print</button>
+            </div>
+        </div>
+        <div class="summary-list">
+            <div><span>Class</span><strong>{{ summary.class_name }}</strong></div>
+            <div><span>Date</span><strong>{{ summary.date }}</strong></div>
+            <div><span>Total Students</span><strong>{{ metrics.total_students }}</strong></div>
+            <div><span>Average Score</span><strong>{{ metrics.average_score }}%</strong></div>
+            <div><span>Report ID</span><strong>{{ summary.report_id }}</strong></div>
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-head"><h3>Performance Overview</h3></div>
+        <canvas id="reportTrend" height="200"></canvas>
+    </article>
+</section>
+
+<section class="panel-grid two-col">
+    <article class="panel">
+        <div class="panel-head"><h3>Priority Gaps</h3></div>
+        {% if metrics.weak_topics %}
+        <ul class="stack-list">
+            {% for topic, score in metrics.weak_topics %}
+            <li>{{ topic }} is currently at {{ score }}% mastery.</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty-state">No weak-topic data yet.</div>
+        {% endif %}
+    </article>
+    <article class="panel">
+        <div class="panel-head"><h3>Class Snapshot</h3></div>
+        <ul class="stack-list">
+            <li>{{ metrics.strong_count }} students are showing strong understanding.</li>
+            <li>{{ metrics.needs_help }} students need follow-up support.</li>
+            <li>{{ scans|length }} exit ticket submissions have been recorded.</li>
+        </ul>
+    </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.renderTrendChart('reportTrend', {{ metrics.trend_points|tojson }});
+</script>
+{% endblock %}
+

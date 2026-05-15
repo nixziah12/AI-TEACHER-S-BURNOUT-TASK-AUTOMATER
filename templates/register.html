@@ -1,0 +1,39 @@
+﻿{% extends 'base.html' %}
+{% block title %}Register | Teacher Burnout Task Automator{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block content %}
+<section class="auth-card-wrap">
+    <div class="auth-visual secondary">
+        <p class="eyebrow">Set up your AI teaching workspace</p>
+        <h2>Build a calmer assessment workflow in one dashboard.</h2>
+        <p>Create your account to manage student uploads, attendance signals, personalized feedback, and lesson-ready reports.</p>
+        <ul class="feature-list">
+            <li>OCR-ready exit ticket uploads</li>
+            <li>Keyword mastery scoring and charts</li>
+            <li>Editable student records and intervention alerts</li>
+        </ul>
+    </div>
+    <form class="auth-card" method="post">
+        <div>
+            <span class="badge">New Teacher Account</span>
+            <h1>Create Account</h1>
+            <p>Start building your real-time classroom insight system.</p>
+        </div>
+        <label>Full Name
+            <input type="text" name="full_name" required>
+        </label>
+        <label>Email
+            <input type="email" name="email" required>
+        </label>
+        <label>Password
+            <input type="password" name="password" required>
+        </label>
+        <label>Confirm Password
+            <input type="password" name="confirm_password" required>
+        </label>
+        <button type="submit" class="primary-btn">Register</button>
+        <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    </form>
+</section>
+{% endblock %}
+

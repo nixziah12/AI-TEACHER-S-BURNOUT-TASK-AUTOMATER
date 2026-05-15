@@ -1,0 +1,89 @@
+﻿{% extends 'base.html' %}
+{% block page_title %}Classroom Dashboard{% endblock %}
+{% block content %}
+<section class="metric-grid four-up">
+    <article class="metric-card"><span>Total Students</span><strong>{{ metrics.total_students }}</strong></article>
+    <article class="metric-card"><span>Average Score</span><strong>{{ metrics.average_score }}%</strong></article>
+    <article class="metric-card"><span>Good Understanding</span><strong>{{ metrics.strong_count }}</strong></article>
+    <article class="metric-card"><span>Needs Improvement</span><strong>{{ metrics.needs_help }}</strong></article>
+</section>
+
+<section class="panel-grid two-col">
+    <article class="panel">
+        <div class="panel-head"><h3>Score Distribution</h3></div>
+        <canvas id="scorePie" height="240"></canvas>
+    </article>
+    <article class="panel">
+        <div class="panel-head"><h3>Top Students</h3></div>
+        {% if metrics.top_students %}
+        <div class="table-list compact">
+            {% for scan in metrics.top_students %}
+            <a class="list-row" href="{{ url_for('scan_detail', scan_id=scan['id']) }}">
+                <div>
+                    <strong>{{ scan['student_name'] }}</strong>
+                    <span>{{ scan['topic'] }}</span>
+                </div>
+                <div class="row-score">
+                    <strong>{{ scan['score'] }}%</strong>
+                    <span>{{ scan['understanding_level'] }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">Upload scans to fill the leaderboard.</div>
+        {% endif %}
+    </article>
+</section>
+
+<section class="panel">
+    <div class="panel-head"><h3>Student Performance Records</h3></div>
+    {% if scans %}
+    <div class="records-table-wrap">
+        <table class="records-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Class</th>
+                    <th>Topic</th>
+                    <th>Attendance</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in scans %}
+                <tr>
+                    <td><a href="{{ url_for('scan_detail', scan_id=scan['id']) }}">{{ scan['student_name'] }}</a></td>
+                    <td>{{ scan['class_name'] }}</td>
+                    <td>{{ scan['topic'] }}</td>
+                    <td>{{ 'Present' if scan['present'] else 'Missing' }}</td>
+                    <td>{{ scan['score'] }}%</td>
+                    <td>{{ scan['understanding_level'] }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <a class="mini-action" href="{{ url_for('scan_detail', scan_id=scan['id']) }}#edit-record">Edit</a>
+                            <form method="post" action="{{ url_for('delete_scan', scan_id=scan['id']) }}" onsubmit="return confirm('Delete this student scan? This cannot be undone.');">
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button type="submit" class="mini-action danger-link">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">No student performance data yet.</div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.renderPieChart('scorePie', {{ metrics.score_distribution|tojson }});
+</script>
+{% endblock %}
+

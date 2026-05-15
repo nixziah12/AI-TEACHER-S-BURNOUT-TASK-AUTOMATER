@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+
+# Local configuration
+.env
+
+# App runtime data
+teacher_burnout.db
+*.sqlite
+*.sqlite3
+uploads/
+
+# Tooling and OS/editor files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

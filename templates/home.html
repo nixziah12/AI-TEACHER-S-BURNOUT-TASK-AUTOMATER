@@ -1,0 +1,92 @@
+﻿{% extends 'base.html' %}
+{% block page_title %}Welcome, {{ current_user['full_name'].split(' ')[0] }}{% endblock %}
+{% block content %}
+<section class="hero-panel">
+    <div>
+        <p class="eyebrow">Teacher workflow accelerator</p>
+        <h3>Make the next lesson smarter than the last one.</h3>
+        <p>Upload handwritten exit tickets, score understanding against your lesson keywords, and spot students who need support before class begins again.</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('upload') }}" class="primary-btn">Upload Exit Tickets</a>
+            <a href="{{ url_for('analytics') }}" class="secondary-btn">View Analytics</a>
+        </div>
+    </div>
+    <div class="hero-chip-box">
+        <div class="stat-chip lavender">
+            <span>Total scans</span>
+            <strong>{{ metrics.total_students }}</strong>
+        </div>
+        <div class="stat-chip slate">
+            <span>Average score</span>
+            <strong>{{ metrics.average_score }}%</strong>
+        </div>
+        <div class="stat-chip amber">
+            <span>Needs attention</span>
+            <strong>{{ metrics.needs_help }}</strong>
+        </div>
+    </div>
+</section>
+
+<section class="quick-grid">
+    <a href="{{ url_for('upload') }}" class="quick-card purple">
+        <h4>Exit Ticket Upload</h4>
+        <p>Process handwritten responses and store class evidence in one place.</p>
+    </a>
+    <a href="{{ url_for('dashboard') }}" class="quick-card blue">
+        <h4>Classroom Dashboard</h4>
+        <p>See mastery, top students, and score distribution at a glance.</p>
+    </a>
+    <a href="{{ url_for('gaps') }}" class="quick-card steel">
+        <h4>Learning Gaps</h4>
+        <p>Spot weak concepts and plan immediate reteaching moves.</p>
+    </a>
+    <a href="{{ url_for('feedback') }}" class="quick-card gold">
+        <h4>Feedback System</h4>
+        <p>Generate supportive, targeted feedback for every student scan.</p>
+    </a>
+</section>
+
+<section class="panel-grid two-col">
+    <article class="panel">
+        <div class="panel-head">
+            <h3>Recent Scans</h3>
+            <a href="{{ url_for('upload') }}">Manage uploads</a>
+        </div>
+        {% if recent_scans %}
+        <div class="table-list">
+            {% for scan in recent_scans %}
+            <a class="list-row" href="{{ url_for('scan_detail', scan_id=scan['id']) }}">
+                <div>
+                    <strong>{{ scan['student_name'] }}</strong>
+                    <span>{{ scan['topic'] }} · {{ scan['class_name'] }}</span>
+                </div>
+                <div class="row-score">
+                    <strong>{{ scan['score'] }}%</strong>
+                    <span>{{ scan['understanding_level'] }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">No scans yet. Upload your first exit ticket to populate the dashboard.</div>
+        {% endif %}
+    </article>
+
+    <article class="panel">
+        <div class="panel-head">
+            <h3>Intervention Alerts</h3>
+            <a href="{{ url_for('gaps') }}">See learning gaps</a>
+        </div>
+        {% if metrics.intervention_alerts %}
+        <ul class="stack-list">
+            {% for name in metrics.intervention_alerts %}
+            <li>{{ name }} has struggled in three low-scoring submissions.</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty-state">No three-lesson alert streaks yet. This area updates automatically as more scans are added.</div>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}
+

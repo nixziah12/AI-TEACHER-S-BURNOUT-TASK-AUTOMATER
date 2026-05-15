@@ -1,0 +1,41 @@
+﻿{% extends 'base.html' %}
+{% block page_title %}Classroom Analytics Dashboard{% endblock %}
+{% block content %}
+<section class="panel-grid analytics-layout">
+    <article class="panel">
+        <div class="panel-head"><h3>Topic Understanding</h3></div>
+        <canvas id="topicBar" height="280"></canvas>
+    </article>
+    <article class="panel">
+        <div class="panel-head"><h3>Common Mistakes</h3></div>
+        {% if metrics.common_misconceptions %}
+        <ol class="stack-list numbered">
+            {% for item in metrics.common_misconceptions %}
+            <li>{{ item.keyword }} appears as a missed concept in {{ item.count }} scan{{ '' if item.count == 1 else 's' }}.</li>
+            {% endfor %}
+        </ol>
+        {% else %}
+        <div class="empty-state">More uploads will reveal misconception trends here.</div>
+        {% endif %}
+    </article>
+</section>
+
+<section class="metric-grid three-up">
+    <article class="metric-card"><span>Average Score</span><strong>{{ metrics.average_score }}%</strong></article>
+    <article class="metric-card"><span>Good Understanding</span><strong>{{ metrics.strong_count }}</strong></article>
+    <article class="metric-card"><span>Needs Improvement</span><strong>{{ metrics.needs_help }}</strong></article>
+</section>
+
+<section class="panel">
+    <div class="panel-head"><h3>Class Performance Trend</h3></div>
+    <canvas id="trendLine" height="120"></canvas>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.renderTopicChart('topicBar', {{ metrics.topic_labels|tojson }}, {{ metrics.topic_scores|tojson }});
+window.renderTrendChart('trendLine', {{ metrics.trend_points|tojson }});
+</script>
+{% endblock %}
+

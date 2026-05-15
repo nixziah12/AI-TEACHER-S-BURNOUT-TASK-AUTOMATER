@@ -1,0 +1,75 @@
+﻿{% extends 'base.html' %}
+{% block page_title %}Upload Exit Tickets{% endblock %}
+{% block content %}
+<section class="panel-grid upload-layout">
+    <article class="panel form-panel">
+        <div class="panel-head">
+            <h3>Batch Upload & Scan</h3>
+            <span class="tag">{{ 'OCR Ready' if tesseract_ready else 'OCR Not Ready' }}</span>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="form-grid">
+            <label class="full-span">Student Names
+                <textarea name="student_names" rows="3"></textarea>
+            </label>
+            <label>Class Name
+                <input type="text" name="class_name" required>
+            </label>
+            <label>Lesson Topic
+                <input type="text" name="topic" required>
+            </label>
+            <label>Keywords
+                <input type="text" name="keywords">
+            </label>
+            <label class="full-span">Rubric
+                <textarea name="rubric" rows="3"></textarea>
+            </label>
+            <label class="full-span">Manual Text
+                <textarea name="student_response" rows="4"></textarea>
+            </label>
+            <label class="upload-dropzone full-span">
+                <input type="file" name="ticket_files" accept=".png,.jpg,.jpeg,.pdf" multiple required>
+                <span class="drop-title">Drop exit ticket files here</span>
+                <small>JPG, PNG, PDF</small>
+            </label>
+            <div class="full-span empty-state">
+                {% if tesseract_ready %}
+                OCR ready. Bright, close photos work best.
+                {% else %}
+                OCR not ready. Install Tesseract and restart.
+                {% endif %}
+            </div>
+            <button type="submit" class="primary-btn full-span">Process Exit Ticket Batch</button>
+        </form>
+    </article>
+
+    <article class="panel">
+        <div class="panel-head">
+            <h3>Recent Uploads</h3>
+            <span class="tag">Live history</span>
+        </div>
+        {% if recent_scans %}
+        <div class="table-list compact">
+            {% for scan in recent_scans %}
+            <div class="list-row">
+                <div>
+                    <a class="row-title" href="{{ url_for('scan_detail', scan_id=scan['id']) }}">{{ scan['file_name'] or 'Uploaded scan' }}</a>
+                    <span>{{ scan['created_at'][:16].replace('T', ' ') }}</span>
+                </div>
+                <div class="row-actions">
+                    <div class="status-pill {{ 'success' if scan['ocr_status'] != 'needs-review' else 'warning' }}">{{ scan['ocr_status'] }}</div>
+                    <a class="mini-action" href="{{ url_for('scan_detail', scan_id=scan['id']) }}#edit-record">Edit</a>
+                    <form method="post" action="{{ url_for('delete_scan', scan_id=scan['id']) }}" onsubmit="return confirm('Delete this student scan? This cannot be undone.');">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="mini-action danger-link">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">Your upload history will appear here after the first scan.</div>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}
+

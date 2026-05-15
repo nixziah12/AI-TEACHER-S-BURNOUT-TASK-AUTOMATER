@@ -1,0 +1,51 @@
+﻿{% extends 'base.html' %}
+{% block page_title %}Learning Gap Identification{% endblock %}
+{% block content %}
+<section class="panel-grid two-col">
+    <article class="panel">
+        <div class="panel-head"><h3>Weak Topics</h3></div>
+        {% if metrics.weak_topics %}
+        <div class="gap-list">
+            {% for topic, score in metrics.weak_topics %}
+            <div class="gap-item">
+                <div>
+                    <strong>{{ topic }}</strong>
+                    <span>Mastery {{ score }}%</span>
+                </div>
+                <div class="mini-bar"><span style="width: {{ score }}%"></span></div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">Weak-topic analysis appears after scans are processed.</div>
+        {% endif %}
+    </article>
+
+    <article class="panel">
+        <div class="panel-head"><h3>Recommendations</h3></div>
+        {% if action_plan %}
+        <ul class="stack-list">
+            {% for action in action_plan %}
+            <li>{{ action }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty-state">No action plan yet because there is not enough data.</div>
+        {% endif %}
+    </article>
+</section>
+
+<section class="panel">
+    <div class="panel-head"><h3>Student Intervention Alerts</h3></div>
+    {% if metrics.intervention_alerts %}
+    <ul class="stack-list">
+        {% for alert in metrics.intervention_alerts %}
+        <li>{{ alert }} has triggered a repeat low-performance streak and may need one-on-one support.</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-state">No students have hit the three-lesson alert threshold.</div>
+    {% endif %}
+</section>
+{% endblock %}
+

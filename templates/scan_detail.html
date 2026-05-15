@@ -1,0 +1,111 @@
+﻿{% extends 'base.html' %}
+{% block page_title %}OCR & Text Analysis{% endblock %}
+{% block content %}
+<section class="panel-grid detail-layout">
+    <article class="panel">
+        <div class="panel-head">
+            <h3>OCR Processing Output</h3>
+            <span class="tag">{{ scan['ocr_status'] }}</span>
+        </div>
+        <div class="ocr-preview">
+            {% if scan['file_path'] %}
+            <img src="{{ url_for('uploaded_file', filename=scan['file_path']) }}" alt="Uploaded exit ticket" onerror="this.style.display='none'">
+            {% endif %}
+            <div>
+                <h4>Extracted Text</h4>
+                <p class="excerpt-box">{{ scan['extracted_text'] }}</p>
+                <p class="helper-copy">Still off? Use <strong>Reprocess OCR</strong>.</p>
+            </div>
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-head">
+            <h3>Text Analysis Result</h3>
+            <span class="score-ring">{{ scan['score'] }}%</span>
+        </div>
+        <div class="analysis-summary">
+            <div class="summary-card success-soft">
+                <span>Understanding</span>
+                <strong>{{ scan['understanding_level'] }}</strong>
+            </div>
+            <div class="summary-card neutral-soft">
+                <span>Matched Keywords</span>
+                <strong>{{ matched_keywords|length }}</strong>
+            </div>
+            <div class="summary-card warning-soft">
+                <span>Missing Keywords</span>
+                <strong>{{ missing_keywords|length }}</strong>
+            </div>
+        </div>
+        <div class="keyword-tags">
+            {% for keyword in matched_keywords %}
+            <span class="keyword success">{{ keyword }}</span>
+            {% endfor %}
+            {% for keyword in missing_keywords %}
+            <span class="keyword warning">{{ keyword }}</span>
+            {% endfor %}
+        </div>
+        <canvas id="keywordChart" height="180"></canvas>
+        <div class="feedback-box">
+            <div class="feedback-head">
+                <h4>Detailed Feedback</h4>
+                <span class="tag">{{ 'Free local engine' if feedback_source == 'local-smart' else feedback_source }}</span>
+            </div>
+            <p>{{ scan['detailed_feedback'] }}</p>
+        </div>
+        <div class="feedback-box">
+            <h4>Recommended Actions</h4>
+            <ul class="stack-list tight">
+                {% for item in recommendations %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </article>
+</section>
+
+<section class="panel" id="edit-record">
+    <div class="panel-head">
+        <h3>Edit Student Data</h3>
+        <span class="tag">Name, rubric, response, and keywords</span>
+    </div>
+    <form method="post" action="{{ url_for('update_scan', scan_id=scan['id']) }}" class="form-grid">
+        <label>Student Name
+            <input type="text" name="student_name" value="{{ scan['student_name'] }}" required>
+        </label>
+        <label>Class Name
+            <input type="text" name="class_name" value="{{ scan['class_name'] }}" required>
+        </label>
+        <label>Lesson Topic
+            <input type="text" name="topic" value="{{ scan['topic'] }}" required>
+        </label>
+        <label>Keywords
+            <input type="text" name="keywords" value="{{ keywords|join(', ') }}">
+        </label>
+        <label class="full-span">Rubric
+            <textarea name="rubric" rows="4">{{ scan['rubric'] }}</textarea>
+        </label>
+        <label class="full-span">Extracted Text
+            <textarea name="extracted_text" rows="7">{{ scan['extracted_text'] }}</textarea>
+        </label>
+        <button type="submit" class="primary-btn">Save Changes</button>
+    </form>
+    <form method="post" action="{{ url_for('reprocess_ocr', scan_id=scan['id']) }}" class="inline-form">
+        <button type="submit" class="secondary-btn">Reprocess OCR</button>
+    </form>
+    <form method="post" action="{{ url_for('refresh_feedback', scan_id=scan['id']) }}" class="inline-form">
+        <button type="submit" class="secondary-btn">Refresh Smart Feedback</button>
+    </form>
+    <form method="post" action="{{ url_for('delete_scan', scan_id=scan['id']) }}" class="danger-zone" onsubmit="return confirm('Delete this student scan? This cannot be undone.');">
+        <button type="submit" class="danger-btn">Delete Student Data</button>
+    </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.renderBarChart('keywordChart', {{ keyword_breakdown|tojson }}, 'Keyword understanding by scan');
+</script>
+{% endblock %}
+
